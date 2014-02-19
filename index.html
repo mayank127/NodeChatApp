@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+	<head>
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<script src='//code.jquery.com/jquery-1.7.2.min.js'></script>
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<script src='//localhost:3000/socket.io/socket.io.js'></script>
+		<script>
+			var socket;
+			$(document).on('ready', function(){
+				$('#nick').hide();
+				$('#afterLogin').hide();
+				socket = io.connect('//localhost:3000');
+
+				socket.on('connected', function(data) {
+					$('#nick').hide();
+					$('#afterLogin').hide();
+					$('#nick').show();
+					$('#nick').append('<div>' + data.message + '</div>');
+					$('#users').empty();
+					for (var i = 0; i < data.list.length; i++) {
+						$('#users').append('<li>' + data.list[i] + '</li>');
+					};
+				});
+				socket.on('out', function(data) {
+					$('#messages').append('<li>' + '<b>'+ data.nick +'</b>: ' +data.message + '</li>');
+				});
+				socket.on('added', function(data){
+					$('#nick').hide();
+					$('#afterLogin').show();
+				});
+				socket.on('error', function(data){
+					alert(data.message);
+				});
+				socket.on('updateList', function(data){
+					$('#users').empty();
+					for (var i = 0; i < data.list.length; i++) {
+						$('#users').append('<li>' + data.list[i] + '</li>');
+					};
+				});
+			});
+			var sendMessage = function(){
+				socket.emit('message', {message: $('#data').val(), id:socket.socket.sessionid});
+				$('#data').val('');
+				return false;
+			}
+			var nickSelected = function(){
+				var nick = $('#nick input').val();
+				socket.emit('register', {'nick': nick, id:socket.socket.sessionid});
+				return false;
+			}
+
+		</script>
+	</head>
+	<body class="content">
+		<div id="nick">
+			<form onsubmit="return nickSelected()">
+				<input type="text" placeholder="Choose Your Nick"/>
+				<div onclick="nickSelected()" class="btn btn-primary" type="submit">Select</div>
+			</form>
+		</div>
+		<div id="afterLogin">
+			<ul id='messages'></ul>
+			<form onsubmit="return sendMessage()">
+				<input id="data" type="text" placeholder="Your Message"/>
+				 <div onclick="sendMessage()" class="btn btn-primary" type="submit">Send</div>
+			</form>
+		</div>
+		Users List:
+		<ul id='users'></ul>
+	</body>
+</html>
