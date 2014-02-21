@@ -2,6 +2,21 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<style type="text/css">
+			.fixed{
+				height: 400px !important;
+    			overflow-y: scroll;
+			}
+			.container{
+				margin:10px auto;
+			}
+			#afterLogin{
+				overflow: hidden;
+			}
+			::-webkit-scrollbar {
+				display: none;
+			}
+		</style>
 		<script src='//code.jquery.com/jquery-1.7.2.min.js'></script>
 		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 		<script src='//localhost:3000/socket.io/socket.io.js'></script>
@@ -16,14 +31,16 @@
 					$('#nick').hide();
 					$('#afterLogin').hide();
 					$('#nick').show();
-					$('#nick').append('<div>' + data.message + '</div>');
 					$('#users').empty();
 					for (var i = 0; i < data.list.length; i++) {
-						$('#users').append('<li>' + data.list[i] + '</li>');
+						$('#users').append('<tr><td>' + data.list[i] + '</td></tr>');
 					};
 				});
 				socket.on('out', function(data) {
-					$('#messages').append('<li>' + '<b>'+ data.nick +'</b>: ' +data.message + '</li>');
+					$('#messages').append('<tr><td><strong>'+ data.nick +'</strong></td><td>' +data.message + '</td></tr>');
+					var elem = $('#afterLogin .fixed')[0];
+					console.log(elem);
+  					elem.scrollTop = elem.scrollHeight;
 				});
 				socket.on('added', function(data){
 					$('#nick').hide();
@@ -35,7 +52,8 @@
 				socket.on('updateList', function(data){
 					$('#users').empty();
 					for (var i = 0; i < data.list.length; i++) {
-						$('#users').append('<li>' + data.list[i] + '</li>');
+						console.log(data.list[i]);
+						$('#users').append('<tr><td>' + data.list[i] + '</td></tr>');
 					};
 				});
 			});
@@ -52,21 +70,28 @@
 
 		</script>
 	</head>
-	<body class="content">
-		<div id="nick">
-			<form onsubmit="return nickSelected()">
-				<input type="text" placeholder="Choose Your Nick"/>
-				<div onclick="nickSelected()" class="btn btn-primary" type="submit">Select</div>
-			</form>
+	<body >
+		<div class="container">
+			<h1>Node Chat Room</h1>
+			<div id="nick" class="col-md-8 center">
+				<form onsubmit="return nickSelected()">
+					<input type="text" placeholder="Choose Your Nick" class="form-control"/><br>
+					<div onclick="nickSelected()" class="btn btn-primary" type="submit">Select</div>
+				</form>
+			</div>
+			<div id="afterLogin" class="col-md-8 center">
+				<div class="fixed"> <table id='messages' class="table"></table></div>
+				<form onsubmit="return sendMessage()">
+					<input id="data" type="text" placeholder="Your Message" class="form-control" /><br>
+					<div onclick="sendMessage()" class="btn btn-primary" class="form-control" type="submit">Send</div>
+				</form>
+			</div>
+			<div class="col-md-4 fixed">
+				<table class="table">
+					<thead><tr><th>Users List:</th></tr></thead>
+					<tbody id="users"></tbody>
+				</table>
+			</div>
 		</div>
-		<div id="afterLogin">
-			<ul id='messages'></ul>
-			<form onsubmit="return sendMessage()">
-				<input id="data" type="text" placeholder="Your Message"/>
-				 <div onclick="sendMessage()" class="btn btn-primary" type="submit">Send</div>
-			</form>
-		</div>
-		Users List:
-		<ul id='users'></ul>
 	</body>
 </html>
