@@ -19,13 +19,13 @@
 		</style>
 		<script src='//code.jquery.com/jquery-1.7.2.min.js'></script>
 		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-		<script src='//localhost:3000/socket.io/socket.io.js'></script>
+		<script src='socket.io/socket.io.js'></script>
 		<script>
 			var socket;
 			$(document).on('ready', function(){
 				$('#nick').hide();
 				$('#afterLogin').hide();
-				socket = io.connect('//localhost:3000');
+				socket = io.connect('');
 
 				socket.on('connected', function(data) {
 					$('#nick').hide();
